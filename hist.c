@@ -1,3 +1,8 @@
+/*
+Copyright reserved for alphaxiang     
+       Author :alphaxiang  
+       Email  :1907767981@qq.com
+*/
 #include "stdio.h"
 #include "stdlib.h"
 #include "string.h"
