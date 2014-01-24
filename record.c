@@ -48,26 +48,28 @@ const char * script [] =
 
 int main(int argc ,char **argv)
 {
-	int i ,length ,record_time                  ;
-	double today_open ,today_close ,last_close  ;
-  double today_max ,today_min ,today_change   ;
-  double transaction_mount ,transaction_value ;
-  char cmd_line [256] , buf [1024] = {0}      ;
-  TRANSINFO sat , last_sat                    ;
-  FILE * tmp  , *fp                           ;
+        int i ,length ,record_time                  ;
+        double today_open ,today_close ,last_close  ;
+        double today_max ,today_min ,today_change   ;
+        double transaction_mount ,transaction_value ;
+        char cmd_line [256] , buf [1024] = {0}      ;
+        TRANSINFO sat , last_sat                    ;
+        FILE * tmp  , *fp                           ;
   
-  if(argc == 2)
+        if(argc == 2)
 	   sprintf(cmd_line,"python ./proc.py  %s" ,argv[1]);
-	else if(argc == 3)
-		sprintf(cmd_line,"python ./proc.py  %s %s" ,argv[1],argv[2]);
+        else if(argc == 3)
+	   sprintf(cmd_line,"python ./proc.py  %s %s" ,argv[1],argv[2]);
 		
 	fp = fopen("proc.py","w+");
+	
 	for(i = 0 ;i < sizeof(script)/sizeof(script[0]) ;i++) 
 	   fwrite(script[i] ,strlen(script[i]) ,1 ,fp);  
+	   
 	fclose(fp);
 	
 	system(cmd_line); 
- // system("rm proc.py");
+        system("rm proc.py");
   
 	fp = fopen("tmp.txt","r+");
 	fgets(buf ,1024 ,fp) ;
@@ -77,47 +79,49 @@ int main(int argc ,char **argv)
 	
 	while(fgets(buf ,1024 ,fp)) { 
 		
-			    sscanf(buf + 11,"%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf " ,&today_close  ,&today_change ,
+			   sscanf(buf + 11,"%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf ,%lf " ,&today_close  ,&today_change ,
   				  &transaction_mount ,&transaction_value,&today_open ,&last_close,&today_max ,&today_min);
  
- 				  if(transaction_mount == 0) continue ;
+ 			   if(transaction_mount == 0) continue ;
   
-				  sat.record_time   = record_time     ;
-				  sat.today_open    = today_open      ;
-				  sat.today_close   = today_close     ;
-				  sat.last_close    = last_close      ;
-				  sat.today_max     = today_max       ;
- 					sat.today_min     = today_min       ;
-  				sat.today_change  = today_change    ;
-  				sat.transaction_mount = transaction_mount ;
-  				sat.transaction_value = transaction_value ;  
+		           sat.record_time   = record_time     ;
+		           sat.today_open    = today_open      ;
+			   sat.today_close   = today_close     ;
+			   sat.last_close    = last_close      ;
+			   sat.today_max     = today_max       ;
+ 			   sat.today_min     = today_min       ;
+  			   sat.today_change  = today_change    ;
+  			   sat.transaction_mount = transaction_mount ;
+  			   sat.transaction_value = transaction_value ;  
  
- 				  buf[8] = 0 ;
-  				tmp = fopen(buf ,"aw+"); 
+ 		           buf[8] = 0 ;
+  			   tmp = fopen(buf ,"aw+"); 
   
-  				if(tmp == NULL) {  	
-  					printf("name path%s\n",buf);
+  			   if(tmp == NULL) {  	
+  				printf("name path%s\n",buf);
     				printf("OPEN RECORD FILE FAILED.....\n");
-  				} else {	
-  					fseek(tmp, 0, SEEK_END); 
-  					length = ftell(tmp);
+  			   } else {	
+  				fseek(tmp, 0, SEEK_END); 
+  				length = ftell(tmp);
   	
-  					if(length > 0) {  		
-  		  				sat.record_index   = length / sizeof(TRANSINFO)  + 1 ;
-  		  				fseek(tmp, length - sizeof(TRANSINFO), SEEK_SET); 
-  		  				fread(&last_sat ,sizeof(TRANSINFO) ,1 ,tmp) ;
+  				if(length > 0) {  		
+  		  			sat.record_index   = length / sizeof(TRANSINFO)  + 1 ;
+  		  			fseek(tmp, length - sizeof(TRANSINFO), SEEK_SET); 
+  		  			fread(&last_sat ,sizeof(TRANSINFO) ,1 ,tmp) ;
   		
-  		  				if(record_time > last_sat.record_time) {
-  		      			fwrite(&sat ,sizeof(TRANSINFO) ,1 ,tmp) ;
-  		      		}       				  		    
-  				  } else {
-  							sat.record_index   = 1                  ;
+  		  			if(record_time > last_sat.record_time) {
+  		      			      fwrite(&sat ,sizeof(TRANSINFO) ,1 ,tmp) ;
+  		      		        }       				  		    
+  			         } else {
+  					sat.record_index   = 1                  ;
       					fwrite(&sat ,sizeof(TRANSINFO) ,1 ,tmp) ;
-    			  }
+    			         }
    					fclose(tmp);
-  				}
-          memset(buf ,0x00 ,1024); 
-	}
-//	system("rm tmp.txt");
-  return printf("\n") ;
+  			   }
+  			   
+                           memset(buf ,0x00 ,1024); 
+	  }
+	
+	  system("rm tmp.txt");
+          return printf("\n") ;
 }
