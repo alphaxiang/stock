@@ -1,3 +1,8 @@
+/*
+Copyright reserved for alphaxiang     
+       Author :alphaxiang  
+       Email  :1907767981@qq.com
+*/
 #define R 1
 #define G 0
 typedef struct _transinfo{
