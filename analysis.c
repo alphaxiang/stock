@@ -98,86 +98,88 @@ STATISTICAL analysis(char * name)
 	assert(tmp != NULL && fp != NULL);
 	
 	fseek(fp, 0, SEEK_END); 
-  length = ftell(fp);
+        length = ftell(fp);
   
-  n = length / sizeof(TRANSINFO) ;
-  n = n < MAX_RECORD ? n : MAX_RECORD ; 
+        n = length / sizeof(TRANSINFO) ;
+        n = n < MAX_RECORD ? n : MAX_RECORD ; 
   
 	index = n ;
-  fseek(fp, 0, SEEK_SET); 
+        fseek(fp, 0, SEEK_SET); 
 	fread(tmp ,sizeof(TRANSINFO) ,n ,fp) ;
-  strcpy(stat_info.stock_code ,name) ;
-  stat_info.today_change = tmp[index - 1].today_change ;
-  stat_info.today_max = 100.0 * (tmp[index - 1].today_max - tmp[index - 1].last_close) / tmp[index - 1].last_close;
-  stat_info.today_min = 100.0 * (tmp[index - 1].today_min - tmp[index - 1].last_close) / tmp[index - 1].last_close;
-  stat_info.today_amp = tmp[index - 1].today_max  - tmp[index - 1].today_min ;
-  stat_info.close_red = stat_info.close_green = 0 ;
+	
+        strcpy(stat_info.stock_code ,name) ;
+        stat_info.today_change = tmp[index - 1].today_change ;
+        stat_info.today_max = 100.0 * (tmp[index - 1].today_max - tmp[index - 1].last_close) / tmp[index - 1].last_close;
+        stat_info.today_min = 100.0 * (tmp[index - 1].today_min - tmp[index - 1].last_close) / tmp[index - 1].last_close;
+        stat_info.today_amp = tmp[index - 1].today_max  - tmp[index - 1].today_min ;
+        stat_info.close_red = stat_info.close_green = 0 ;
   
-  if(index > 1 ) {
-  	stat_info.delt_transmount = tmp[index - 1].transaction_mount / tmp[index - 2].transaction_mount ;
-  } else {
-  	stat_info.delt_transmount = 1 ;
-  }
+        if(index > 1 ) {
+  	     stat_info.delt_transmount = tmp[index - 1].transaction_mount / tmp[index - 2].transaction_mount ;
+        } else {
+  	     stat_info.delt_transmount = 1 ;
+        }
   
-  for(i = index ;i > 0 ;i--) {
-  	// close with red 
-  	if(tmp[i-1].today_close > tmp[i-1].today_open)
+        for(i = index ;i > 0 ;i--) {
+  	    // close with red 
+  	    if(tmp[i-1].today_close > tmp[i-1].today_open)
   		 stat_info.close_red++ ;
-    else 
-    	 break ;
-  }
+            else 
+    	         break ;
+        }
   
-  for(i = index ;i > 0 ;i--) {
-  	// close with green 
-  	if(tmp[i-1].today_close < tmp[i-1].today_open)
+        for(i = index ;i > 0 ;i--) {
+  	    // close with green 
+  	    if(tmp[i-1].today_close < tmp[i-1].today_open)
   		 stat_info.close_green++ ;
-  	else
-  		 break ;
-  }
+  	    else
+  	         break ;
+        }
   
-  k = index > delt_time ? index - delt_time + 1: 1 ;
-  stat_info.t_red = stat_info.t_green = 0 ;
-  stat_info.t_change = stat_info.t_mean = 0.0 ;
-  stat_info.t_min = stat_info.t_max = tmp[index - 1].today_close ;
+        k = index > delt_time ? index - delt_time + 1: 1 ;
+        stat_info.t_red = stat_info.t_green = 0 ;
+        stat_info.t_change = stat_info.t_mean = 0.0 ;
+        stat_info.t_min = stat_info.t_max = tmp[index - 1].today_close ;
   
-  for(i = k ; i <= index  ;i++) {
+        for(i = k ; i <= index  ;i++) {
 
-  	stat_info.t_mean   += tmp[i - 1].today_close ;
-  	stat_info.t_change += tmp[i - 1].today_change;
+  	    stat_info.t_mean   += tmp[i - 1].today_close ;
+  	    stat_info.t_change += tmp[i - 1].today_change;
 
-  	if(tmp[i-1].today_close < tmp[i-1].today_open)
+  	    if(tmp[i-1].today_close < tmp[i-1].today_open)
   		stat_info.t_green++ ;
-  	else
+  	    else
   		stat_info.t_red++   ;
   		
-  	if(tmp[i-1].today_max > stat_info.t_max) stat_info.t_max = tmp[i-1].today_max ;
+  	    if(tmp[i-1].today_max > stat_info.t_max) stat_info.t_max = tmp[i-1].today_max ;
   		
-    if(tmp[i-1].today_min < stat_info.t_min) stat_info.t_min = tmp[i-1].today_min ;
+            if(tmp[i-1].today_min < stat_info.t_min) stat_info.t_min = tmp[i-1].today_min ;
   			
-  }
+        }
   
-  stat_info.red_ration = (double)stat_info.t_red /(stat_info.t_red + stat_info.t_green) ;	
-  stat_info.t_mean = stat_info.t_mean / (index - k + 1) ;
-  stat_info.t_away_mean = 100.0 * (tmp[index - 1].today_close - stat_info.t_mean) / stat_info.t_mean ;
+        stat_info.red_ration = (double)stat_info.t_red /(stat_info.t_red + stat_info.t_green) ;	
+        stat_info.t_mean = stat_info.t_mean / (index - k + 1) ;
+        stat_info.t_away_mean = 100.0 * (tmp[index - 1].today_close - stat_info.t_mean) / stat_info.t_mean ;
   
-  i = index ; k = 0 ;
+        i = index ; k = 0 ;
   
-  while(i > 0 && tmp[i - 1].today_change >= 0) {
-  	  k++ ;	i-- ;
-  }
-  stat_info.continue_increase = k ;
+        while(i > 0 && tmp[i - 1].today_change >= 0) {
+  	    k++ ;	i-- ;
+        }
+        
+        stat_info.continue_increase = k ;
   
-  i = index ; k = 0 ;
+        i = index ; k = 0 ;
   
-  while(i > 0 && tmp[i - 1].today_change <= 0) {
-  	k++ ;	i-- ;
-  }
+        while(i > 0 && tmp[i - 1].today_change <= 0) {
+  	   k++ ;	i-- ;
+        }
   
-  stat_info.continue_decrease = k ;
+        stat_info.continue_decrease = k ;
    
-  free(tmp) ; fclose(fp);
+        free(tmp) ; fclose(fp);
   
-  return stat_info ;
+        return stat_info ;
 }
 
 int main(int argc ,char **argv)
@@ -225,21 +227,22 @@ int main(int argc ,char **argv)
 	}
 	
 	analysis_info = (STATISTICAL *)malloc(10000 * sizeof(STATISTICAL));	
-  fp = fopen(stock_list,"r+");
+        fp = fopen(stock_list,"r+");
 
-  assert(fp != NULL && analysis_info != NULL) ;
+        assert(fp != NULL && analysis_info != NULL) ;
   
 	while(fgets(buf ,1024 ,fp)) { 
-     buf[strlen(buf) - 1] = 0 ;
-	   analysis_info[sum++] = analysis(buf);
-	   memset(buf ,0x00 ,1024);
+              buf[strlen(buf) - 1] = 0 ;
+	      analysis_info[sum++] = analysis(buf);
+	      memset(buf ,0x00 ,1024);
 	}
 	
 	for(i = 0 ;i < sum ;i++) for(j = i +1 ;j < sum ;j++) {
 	    	
-	    	swap = 0 ; 	
-	    	if(measure == 1 ) {
-	    	   if(analysis_info[i].t_change < analysis_info[j].t_change ) swap = 1 ;
+	 swap = 0 ; 
+	 
+	if(measure == 1 ) {
+	   if(analysis_info[i].t_change < analysis_info[j].t_change ) swap = 1 ;
         } else if (measure == 2) {
            if(analysis_info[i].continue_increase > analysis_info[j].continue_increase ) swap = 1 ;
         } else if (measure == 3) {
@@ -254,11 +257,11 @@ int main(int argc ,char **argv)
            if(analysis_info[i].red_ration < analysis_info[j].red_ration ) swap = 1 ;
         }
         
-	    	if(swap) {
+	   if(swap) {
 	    		tmp = analysis_info[i] ;
 	    		analysis_info[i] = analysis_info[j] ;
 	    		analysis_info[j] = tmp ;
-	    	}
+	   }
 	}
 	
 	for(i = 0 ;i < sum ;i++) {
